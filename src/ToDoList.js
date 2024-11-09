@@ -1,8 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+
+// Define a unique key for localStorage
+const STORAGE_KEY = 'my_app_tasks';
 
 function ToDoList() {
-    const [tasks, setTasks] = useState(['eat', 'sleep', 'code']);
-    const [newTask, setNewTask] = useState('');
+    const [tasks, setTasks] = useState([]);
+    const [newTask, setNewTask] = useState('');  // Define the state for the new task
+
+    // Load tasks from localStorage on component mount
+    useEffect(() => {
+        const savedTasks = localStorage.getItem(STORAGE_KEY);
+        console.log("Loading tasks from localStorage:", savedTasks); // Debug log
+        if (savedTasks) {
+            try {
+                const parsedTasks = JSON.parse(savedTasks);
+                // Ensure the tasks are valid (i.e., an array)
+                if (Array.isArray(parsedTasks)) {
+                    setTasks(parsedTasks);
+                }
+            } catch (error) {
+                console.error("Error parsing local storage data", error);
+            }
+        }
+    }, []); // Run only once when the component mounts
+
+    // Save tasks to localStorage whenever the tasks state changes
+    useEffect(() => {
+        if (tasks.length > 0) {
+            console.log("Saving tasks to localStorage:", tasks); // Debug log
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
+        }
+    }, [tasks]); // Run when tasks change
 
     // Handle input change
     function handleInputChange(event) {
@@ -13,7 +41,7 @@ function ToDoList() {
     function addTask() {
         if (newTask.trim() !== '') {
             setTasks(prevTasks => [...prevTasks, newTask]);
-            setNewTask('');
+            setNewTask('');  // Clear the input after adding the task
         }
     }
 
@@ -49,12 +77,12 @@ function ToDoList() {
                 <input
                     type="text"
                     placeholder="Enter a new task"
-                    value={newTask}
-                    onChange={handleInputChange}
+                    value={newTask}  // Bind the input value to newTask state
+                    onChange={handleInputChange}  // Update the newTask state when input changes
                 />
                 <button
                     className="add-button"
-                    onClick={addTask}
+                    onClick={addTask}  // Add a new task when the button is clicked
                 >
                     Add
                 </button>
