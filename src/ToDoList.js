@@ -40,7 +40,11 @@ function ToDoList() {
     // Add a new task to the list
     function addTask() {
         if (newTask.trim() !== '') {
-            setTasks(prevTasks => [...prevTasks, newTask]);
+            const newTaskObj = {
+                text: newTask,
+                completed: false, // Initially, all tasks are not completed
+            };
+            setTasks(prevTasks => [...prevTasks, newTaskObj]);
             setNewTask('');  // Clear the input after adding the task
         }
     }
@@ -48,6 +52,13 @@ function ToDoList() {
     // Delete a task by its index
     function deleteTask(index) {
         const updatedTasks = tasks.filter((_, i) => i !== index);
+        setTasks(updatedTasks);
+    }
+
+    // Toggle the completed state of a task
+    function toggleTaskCompletion(index) {
+        const updatedTasks = [...tasks];
+        updatedTasks[index].completed = !updatedTasks[index].completed;
         setTasks(updatedTasks);
     }
 
@@ -90,8 +101,15 @@ function ToDoList() {
 
             <ol>
                 {tasks.map((task, index) => (
-                    <li key={`${task}-${index}`}>
-                        <span className="text">{task}</span>
+                    <li key={`${task.text}-${index}`} style={{ textDecoration: task.completed ? 'line-through' : 'none' }}>
+                        <span className="checkbox">
+                            <input
+                                type="checkbox"
+                                checked={task.completed} // Bind the checkbox to the task's completed state
+                                onChange={() => toggleTaskCompletion(index)} // Toggle completion when checked
+                            />
+                        </span>
+                        <span className="text">{task.text}</span>
                         <button
                             className="delete-button"
                             onClick={() => deleteTask(index)}
